@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Project Thru the Smoke — Vape Life Cost</title>
+  <meta name="description" content="Interactive educational site & calculator estimating life lost from vaping. Data-informed, transparent, and mobile-friendly." />
+  <style>
+    :root{
+      --bg:#0f1720; --card:#0b1220; --muted:#9aa6b2; --accent1:#76e2f4; --accent2:#5fc0cf; --glass: rgba(255,255,255,0.06);
+      --radius:14px; --maxw:980px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI, system-ui, -apple-system, 'Helvetica Neue', Arial;background:linear-gradient(180deg,var(--bg),#1c2630);color:#fff}
+    .site{max-width:var(--maxw);margin:28px auto;padding:20px}
+
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:grid;place-items:center;font-weight:700;color:#07202a}
+    nav{display:flex;gap:8px;align-items:center}
+    nav a{color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:10px}
+    nav a.active, nav a:hover{background:var(--glass);color:var(--accent1)}
+
+    main{margin-top:18px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:18px}
+
+    .calc-controls{display:flex;flex-direction:column;gap:10px}
+    label{font-size:0.9rem;color:var(--muted);}
+    select{padding:12px;border-radius:10px;border:none;background:transparent;color:var(--muted)}
+    input[type=number]{padding:12px;border-radius:10px;border:none;background:transparent;color:inherit;border:1px solid rgba(255,255,255,0.04)}
+    button.primary{margin-top:6px;padding:12px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#07202a;font-weight:700;cursor:pointer}
+
+    .section{margin-top:20px}
+    .small{font-size:0.88rem;color:var(--muted)}
+    .sources{font-size:0.86rem;color:var(--muted);line-height:1.45}
+
+    footer{margin-top:26px;text-align:center;color:var(--muted);font-size:0.85rem}
+
+    /* Modal styles */
+    .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);display:none;align-items:center;justify-content:center;z-index:1000}
+    .modal{background:var(--card);padding:20px;border-radius:var(--radius);max-width:400px;width:90%;text-align:center;color:#fff;}
+    .modal button{margin-top:15px;padding:10px 16px;border:none;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#07202a;font-weight:700;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="site" id="site">
+    <header>
+      <div class="brand">
+        <div class="logo">TS</div>
+        <div>
+          <div style="font-weight:700">Project Thru the Smoke</div>
+          <div class="small">Vape Life Cost — educational calculator</div>
+        </div>
+      </div>
+
+      <nav aria-label="Main navigation">
+        <a href="#mission" class="navlink" data-target="mission">Mission</a>
+        <a href="#calculator" class="navlink" data-target="calculator">Calculator</a>
+        <a href="#about" class="navlink" data-target="about">About & Sources</a>
+      </nav>
+    </header>
+
+    <main>
+      <div id="mission" class="section">
+        <div class="card">
+          <h2>Mission</h2>
+          <p class="small">I’m Ashy, and this is Thru the Smoke. Our mission is to expose the dangers of vaping and show what it’s really costing you—your health, your future, your life. </p>
+        </div>
+      </div>
+
+      <div id="calculator" class="section">
+        <div class="card">
+          <h2 style="margin-top:0">Calculator</h2>
+          <div class="calc-controls">
+            <label for="inputMode">Input type</label>
+            <select id="inputMode" onchange="renderInput()">
+              <option value="geek">Geek Bars</option>
+              <option value="puffs">Individual Puffs (estimation) </option>
+              <option value="flum">Flum Pebbles</option>
+            </select>
+
+            <div id="inputArea"></div>
+
+            <button class="primary" onclick="runCalc()">Calculate</button>
+            <div id="calcNote" class="small">Note: Geek Bar ≈ 575 puffs, Flum Pebble ≈ 6000 puffs. Harm factor fixed at 30% for estimates.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="about" class="section">
+        <div class="card">
+          <h2 style="margin-top:0">About & Sources</h2>
+          <p class="small">This educational tool is for informational purposes and uses simplified modeling to make public-health data more accessible. Assumptions (puffs/cig, harm factor, minutes/cig) are explained and easily adjustable in the code.</p>
+          <h4>Key sources</h4>
+          <div class="sources">
+            <ul>
+              <li>National Library of Medicine — studies discussing minutes of life lost per cigarette.</li>
+              <li>CDC & NIH — public pages on e-cigarette use, prevalence, and relative harm discussions.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      Project Thru the Smoke © 2025 — created by Ashish. Data assumptions: 11 min/cig, 12 puffs/cig, 575 puffs/Geek Bar, 6000 puffs/Flum Pebble, harmFactor 0.30.
+    </footer>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div id="modalContent"></div>
+      <button onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const PPU = { geek: 575, flum: 6000, cig: 12 };
+    const MIN_PER_CIG = 11;
+    const HARM = 0.3;
+
+    function renderInput(){
+      const mode = document.getElementById('inputMode').value;
+      const area = document.getElementById('inputArea');
+      if(mode==='geek'){
+        area.innerHTML = `<label for="geekCount">Number of Geek Bars</label><br><input id="geekCount" type="number" min="0" placeholder="e.g. 4">`;
+      } else if(mode==='flum'){
+        area.innerHTML = `<label for="flumCount">Number of Flum Pebbles</label><br><input id="flumCount" type="number" min="0" placeholder="e.g. 1">`;
+      } else {
+        area.innerHTML = `<label for="puffsCount">Number of Puffs</label><br><input id="puffsCount" type="number" min="0" placeholder="e.g. 1200">`;
+      }
+
+      // Add Enter key listener
+      const input = area.querySelector('input');
+      input.addEventListener('keypress', function(e){
+        if(e.key === 'Enter'){ runCalc(); }
+      });
+    }
+
+    function runCalc(){
+      const mode = document.getElementById('inputMode').value;
+      let totalPuffs = 0;
+
+      if(mode==='geek'){
+        const n = parseFloat(document.getElementById('geekCount').value) || 0;
+        if(n<=0){ alert('Enter valid Geek Bars'); return; }
+        totalPuffs = n * PPU.geek;
+      } else if(mode==='flum'){
+        const n = parseFloat(document.getElementById('flumCount').value) || 0;
+        if(n<=0){ alert('Enter valid Flum Pebbles'); return; }
+        totalPuffs = n * PPU.flum;
+      } else {
+        const n = parseFloat(document.getElementById('puffsCount').value) || 0;
+        if(n<=0){ alert('Enter valid puffs'); return; }
+        totalPuffs = n;
+      }
+
+      const cigsEq = totalPuffs / PPU.cig;
+      const minutesLost = cigsEq * MIN_PER_CIG * HARM;
+      const hours = minutesLost / 60;
+      const days = hours / 24;
+
+      // Show modal
+      const modalContent = document.getElementById('modalContent');
+      modalContent.innerHTML = `<strong>Results</strong><br>Puffs: ${totalPuffs}<br>Equivalent cigarettes: ${cigsEq.toFixed(1)}<br>Estimated minutes lost: ${minutesLost.toFixed(1)} (~${hours.toFixed(2)} hours / ${days.toFixed(2)} days)`;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function closeModal(){
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    renderInput();
+  </script>
+</body>
+</html>
